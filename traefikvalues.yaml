@@ -1,0 +1,6 @@
+ingressClass:
+  fallbackApiVersion: v1beta1
+additionalArguments:
+  - "--entryPoints.websecure.http.tls=true"
+  - "--entrypoints.web.http.redirections.entrypoint.to=:443"
+  - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
