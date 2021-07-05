@@ -1,4 +1,7 @@
 domain: "example.com"
+tls:
+  acmeMail: keatonpotatoes@aol.com
+  ingressClass: traefik
 
 imagePullSecrets: []
 nameOverride: ""
@@ -6,10 +9,6 @@ fullnameOverride: ""
 
 image:
   tag: ""
-
-tls:
-  acmeMail: keatonpotatoes@aol.com
-  ingressClass: nginx
 
 jitsi:
   namespace: default
@@ -19,8 +18,8 @@ jitsi:
     JVB_AUTH_PASSWORD: askpdokadklcmaopjpjq+2r23
   ingress:
     annotations:
-      kubernetes.io/ingress.class: nginx
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      kubernetes.io/ingress.class: traefik
   web:
     image: jitsi/web:stable-5870
     imagePullPolicy: IfNotPresent
@@ -104,7 +103,6 @@ jitsi:
       - name: TZ
         value: Europe/Amsterdam
 
-# Env
 env:
   secretKey: "tempSecretKeyNeedsToChange"
   adminApiToken: "123"
@@ -113,7 +111,6 @@ env:
   jitsiPrivateMode: false
   debugMode: false
 
-#################### workadventure-back ####################
 back:
   name: "back"
   replicaCount: 2
@@ -122,7 +119,6 @@ back:
     repository: "thecodingmachine/workadventure-back"
     pullPolicy: IfNotPresent
 
-  # Env back
   env: {}
 
   extraEnvs:
@@ -143,9 +139,8 @@ back:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: traefik
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-      # kubernetes.io/tls-acme: "true"
     hosts:
       - host: api # FQDN is computed with this and domain
         paths: [/]
@@ -153,9 +148,7 @@ back:
       - secretName: workadventure-api-tls
         hosts:
           - api # FQDN is computed with this and domain
-#################### workadventure-back ####################
 
-#################### workadventure-front ####################
 front:
   name: "front"
   replicaCount: 1
@@ -164,7 +157,6 @@ front:
     repository: "thecodingmachine/workadventure-front"
     pullPolicy: IfNotPresent
 
-  # Env front
   env:
     turnServer: "turn:coturn.workadventu.re:443,turns:coturn.workadventu.re:443"
     turnUser: "workadventure"
@@ -190,9 +182,8 @@ front:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: traefik
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-      # kubernetes.io/tls-acme: "true"
     hosts:
       - host: play
         paths: [/]
@@ -201,9 +192,6 @@ front:
         hosts:
           - play
 
-#################### workadventure-front ####################
-
-#################### workadventure-pusher ####################
 pusher:
   name: "pusher"
   replicaCount: 2
@@ -212,7 +200,6 @@ pusher:
     repository: "thecodingmachine/workadventure-pusher"
     pullPolicy: IfNotPresent
 
-  # Env front
   env: {}
 
   extraEnvs:
@@ -233,9 +220,8 @@ pusher:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: traefik
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-      # kubernetes.io/tls-acme: "true"
     hosts:
       - host: pusher
         paths: [/]
@@ -243,9 +229,7 @@ pusher:
       - secretName: workadventure-pusher-tls
         hosts:
           - pusher
-#################### workadventure-pusher ####################
 
-#################### workadventure-uploader ####################
 uploader:
   name: "uploader"
   replicaCount: 2
@@ -254,7 +238,6 @@ uploader:
     repository: "thecodingmachine/workadventure-uploader"
     pullPolicy: IfNotPresent
 
-  # Env front
   env: {}
 
   extraEnvs:
@@ -275,9 +258,8 @@ uploader:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: traefik
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-      # kubernetes.io/tls-acme: "true"
     hosts:
       - host: uploader
         paths: [/]
@@ -285,9 +267,7 @@ uploader:
       - secretName: workadventure-uploader-tls
         hosts:
           - uploader
-#################### workadventure-uploader ####################
 
-#################### workadventure-maps ####################
 maps:
   name: "maps"
   replicaCount: 2
@@ -296,7 +276,6 @@ maps:
     repository: "thecodingmachine/workadventure-maps"
     pullPolicy: IfNotPresent
 
-  # Env front
   env: {}
 
   extraEnvs:
@@ -317,9 +296,8 @@ maps:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: traefik
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-      # kubernetes.io/tls-acme: "true"
     hosts:
       - host: maps
         paths: [/]
@@ -327,7 +305,6 @@ maps:
       - secretName: workadventure-maps-tls
         hosts:
           - maps
-#################### workadventure-maps ####################
 
 serviceAccount:
   # Specifies whether a service account should be created

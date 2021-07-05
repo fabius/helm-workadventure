@@ -1,69 +1,58 @@
 # Helm Chart to deploy Workadventure
 
-This is a Helm Chart to deploy
-[WorkAdventure](https://github.com/thecodingmachine/workadventure)
+These are a couple of Helm Charts to deploy
+
+- [WorkAdventure](https://github.com/thecodingmachine/workadventure)
+- [Jitsi Meet](https://github.com/jitsi/jitsi-meet).
+- [cert-manager](https://github.com/jetstack/cert-manager)
 
 ## Prerequisites
 
-### K8S
+### CLI tools
 
-Get a K8S cluster. For example see https://minikube.sigs.k8s.io/docs/start/
+- `kubectl` v1.21.x
+- `helm` v3.6.x
+- `make` (only if you want to use the provided [Makefile](Makefile))
 
-### Helm
+### K8s
 
-Get Helm : https://helm.sh/docs/intro/install/
+Get a K8S cluster. This setup has been tested on
+[DigitalOceans K8s](https://www.digitalocean.com/products/kubernetes/) offering.
+(v1.21.x)
 
-## Install
+Have a domain at your disposal. This is necessary for TLS termination provided
+by cert-manager.
 
-1. Clone the repo
-2. cd into ./k8s/helm/workadventure
-3. Install workadventure in tag defined in [Chart](./Chart.yaml) :
+These charts work with both `nginx` and `traefik`. `traefik` is the default
+though. If you do not have a running `traefik` LB deployment running, deploy one
+yourself:
 
-```
-helm install myrelease .
-```
-
-4. Wait a few seconds for all pods to start
-5. With self-signed TLS certificates, make them trust by your browser by going
-   to https://maps.workadventure.minikube/,
-   https://pusher.workadventure.minikube/
-6. Then you can start by going to https://play.workadventure.minikube/
-
-By default, Workadventure will respond to https://[play | maps | pusher |
-uploader | api].workadventure.minikube
-
-You can also start another universe with another map. For example :
-https://play.workadventure.minikube/_/anyuniverse/gparant.github.io/tcm-client/Demo/demo-v1.json
-
-### Install workadventure in a specific Git branch
-
-Branches are those in upstream repo (from
-https://github.com/thecodingmachine/workadventure)
-
-```
-helm install myrelease . --set image.tag=develop
+```sh
+helm repo add traefik https://helm.traefik.io/traefik
+helm repo update
+helm upgrade --install traefik traefik/traefik -f traefikvalues.yaml
 ```
 
-### Install workadventure with a specific domain
+## Deploy
 
+Customize [values.yaml](values.yaml) to your liking. At the very least, change
+`domain` and `tls.acmeMail`. Obviously, you would want to change everything
+related to secrets for a production setup.
+
+Then run
+
+```sh
+make up
 ```
-helm install myrelease . --set domain=mydomain.com
-```
 
-It will then be available at
-https://play.mydomain.com/_/global/maps.mydomain.com/Floor0/floor0.json
+Or copy paste the commands from the [Makefile](Makefile) if that's your jam.
 
-## Customise
+## Acknowledgements
 
-You can override any values defined [values.yaml](./values.yaml). Read Helm doc
-to know how.
+This repo has been made possible by these fellows:
 
-## TODO
-
-[X] TLS in order to make camera and mic working
-
-[ ] Depend from Jitsi Helm to get full self-hosting
-
-[ ] Simplify templates ?
-
-[ ] CI/CD this Chart
+- [gmoirod](https://github.com/gmoirod): Provided a working
+  [WorkAdventure chart](https://github.com/gmoirod/helm-workadventure)
+- [rsoika](https://github.com/rsoika): I
+  [kustomized](https://github.com/jitsi-contrib/jitsi-kubernetes) my way into a
+  helm chart
