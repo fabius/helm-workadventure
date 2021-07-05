@@ -61,7 +61,7 @@ spec:
             - name: 'ADMIN_URL'
               value: "{{- .Values.domain -}}"
             - name: 'JITSI_URL'
-              value: "{{- .Values.env.jitsiUrl -}}"
+              value: "meet.{{ .Values.domain }}"
             - name: 'SECRET_JITSI_KEY'
               value: "{{- .Values.env.secretJitsiKey -}}"
             - name: 'JITSI_PRIVATE_MODE'

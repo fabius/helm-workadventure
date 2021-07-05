@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jitsi-privileged
+  namespace: {{ .Values.jitsi.namespace }}
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - jitsi-privileged
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+

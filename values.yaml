@@ -1,6 +1,4 @@
-# Default values for workadventure.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+domain: "example.com"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -9,14 +7,108 @@ fullnameOverride: ""
 image:
   tag: ""
 
-domain: "workadventure.minikube"
+tls:
+  acmeMail: keatonpotatoes@aol.com
+  ingressClass: nginx
+
+jitsi:
+  namespace: default
+  secrets:
+    JICOFO_AUTH_PASSWORD: aoijdduihiuhsdiuh08372498327sdfkllk
+    JICOFO_COMPONENT_SECRET: aslkdjosidhvo398498eofdsv()()jakdlsvndkljn
+    JVB_AUTH_PASSWORD: askpdokadklcmaopjpjq+2r23
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  web:
+    image: jitsi/web:stable-5870
+    imagePullPolicy: IfNotPresent
+    env:
+      - name: JICOFO_AUTH_USER
+        value: focus
+      - name: XMPP_DOMAIN
+        value: meet.jitsi
+      - name: XMPP_AUTH_DOMAIN
+        value: auth.meet.jitsi
+      - name: XMPP_INTERNAL_MUC_DOMAIN
+        value: internal-muc.meet.jitsi
+      - name: XMPP_BOSH_URL_BASE
+        value: http://127.0.0.1:5280
+      - name: XMPP_MUC_DOMAIN
+        value: muc.meet.jitsi
+      - name: TZ
+        value: Europe/Amsterdam
+      - name: JVB_TCP_HARVESTER_DISABLED
+        value: "true"
+  prosody:
+    image: jitsi/prosody:stable-5870
+    imagePullPolicy: IfNotPresent
+    env:
+      - name: XMPP_DOMAIN
+        value: meet.jitsi
+      - name: XMPP_AUTH_DOMAIN
+        value: auth.meet.jitsi
+      - name: XMPP_MUC_DOMAIN
+        value: muc.meet.jitsi
+      - name: XMPP_INTERNAL_MUC_DOMAIN
+        value: internal-muc.meet.jitsi
+      - name: JVB_AUTH_USER
+        value: jvb
+      - name: JICOFO_AUTH_USER
+        value: focus
+      - name: TZ
+        value: Europe/Amsterdam
+      - name: JVB_TCP_HARVESTER_DISABLED
+        value: "true"
+  jicofo:
+    image: jitsi/jicofo:stable-5870
+    imagePullPolicy: IfNotPresent
+    env:
+      - name: XMPP_DOMAIN
+        value: meet.jitsi
+      - name: XMPP_AUTH_DOMAIN
+        value: auth.meet.jitsi
+      - name: XMPP_MUC_DOMAIN
+        value: muc.meet.jitsi
+      - name: XMPP_INTERNAL_MUC_DOMAIN
+        value: internal-muc.meet.jitsi
+      - name: JICOFO_AUTH_USER
+        value: focus
+      - name: TZ
+        value: Europe/Amsterdam
+      - name: JVB_BREWERY_MUC
+        value: jvbbrewery
+  jvb:
+    image: jitsi/jvb:stable-5870
+    imagePullPolicy: IfNotPresent
+    env:
+      - name: XMPP_DOMAIN
+        value: meet.jitsi
+      - name: XMPP_AUTH_DOMAIN
+        value: auth.meet.jitsi
+      - name: XMPP_INTERNAL_MUC_DOMAIN
+        value: internal-muc.meet.jitsi
+      - name: JVB_STUN_SERVERS
+        value: stun.l.google.com:19302,stun1.l.google.com:19302,stun2.l.google.com:19302
+      - name: JICOFO_AUTH_USER
+        value: focus
+      - name: JVB_TCP_HARVESTER_DISABLED
+        value: "true"
+      - name: JVB_AUTH_USER
+        value: jvb
+      - name: JVB_PORT
+        value: "30300"
+      - name: JVB_BREWERY_MUC
+        value: jvbbrewery
+      - name: TZ
+        value: Europe/Amsterdam
 
 # Env
 env:
   secretKey: "tempSecretKeyNeedsToChange"
   adminApiToken: "123"
   jitsiIss: ""
-  jitsiUrl: "meet.jit.si"
   secretJitsiKey: ""
   jitsiPrivateMode: false
   debugMode: false
@@ -31,9 +123,9 @@ back:
     pullPolicy: IfNotPresent
 
   # Env back
-  env: {}    
+  env: {}
 
-  extraEnvs: 
+  extraEnvs:
     - name: KEY
       value: value
 
@@ -50,14 +142,15 @@ back:
 
   ingress:
     enabled: true
-    annotations: {}
-      # kubernetes.io/ingress.class: nginx
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
       # kubernetes.io/tls-acme: "true"
     hosts:
       - host: api # FQDN is computed with this and domain
         paths: [/]
     tls:
-      - secretName: back-tls      
+      - secretName: workadventure-api-tls
         hosts:
           - api # FQDN is computed with this and domain
 #################### workadventure-back ####################
@@ -79,7 +172,7 @@ front:
     startRoomUniverse: "global"
     startRoomPath: "/Floor0/floor0.json"
 
-  extraEnvs: 
+  extraEnvs:
     - name: KEY
       value: value
 
@@ -97,18 +190,18 @@ front:
   ingress:
     enabled: true
     annotations:
-      # kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
       # kubernetes.io/tls-acme: "true"
     hosts:
       - host: play
         paths: [/]
     tls:
-      - secretName: front-tls
+      - secretName: workadventure-play-tls
         hosts:
           - play
-  
-#################### workadventure-front ####################
 
+#################### workadventure-front ####################
 
 #################### workadventure-pusher ####################
 pusher:
@@ -122,7 +215,7 @@ pusher:
   # Env front
   env: {}
 
-  extraEnvs: 
+  extraEnvs:
     - name: KEY
       value: value
 
@@ -140,17 +233,17 @@ pusher:
   ingress:
     enabled: true
     annotations:
-      # kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
       # kubernetes.io/tls-acme: "true"
     hosts:
       - host: pusher
         paths: [/]
     tls:
-      - secretName: pusher-tls
+      - secretName: workadventure-pusher-tls
         hosts:
-          - pusher  
+          - pusher
 #################### workadventure-pusher ####################
-
 
 #################### workadventure-uploader ####################
 uploader:
@@ -164,7 +257,7 @@ uploader:
   # Env front
   env: {}
 
-  extraEnvs: 
+  extraEnvs:
     - name: KEY
       value: value
 
@@ -182,17 +275,17 @@ uploader:
   ingress:
     enabled: true
     annotations:
-      # kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
       # kubernetes.io/tls-acme: "true"
     hosts:
       - host: uploader
         paths: [/]
     tls:
-      - secretName: uploader-tls
+      - secretName: workadventure-uploader-tls
         hosts:
           - uploader
 #################### workadventure-uploader ####################
-
 
 #################### workadventure-maps ####################
 maps:
@@ -206,7 +299,7 @@ maps:
   # Env front
   env: {}
 
-  extraEnvs: 
+  extraEnvs:
     - name: KEY
       value: value
 
@@ -224,15 +317,16 @@ maps:
   ingress:
     enabled: true
     annotations:
-      # kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
       # kubernetes.io/tls-acme: "true"
     hosts:
       - host: maps
         paths: [/]
     tls:
-      - secretName: maps-tls
+      - secretName: workadventure-maps-tls
         hosts:
-          - maps 
+          - maps
 #################### workadventure-maps ####################
 
 serviceAccount:
@@ -246,10 +340,12 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -257,9 +353,8 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-
-
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -270,11 +365,3 @@ resources: {}
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
-
-
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}

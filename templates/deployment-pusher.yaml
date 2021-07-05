@@ -60,7 +60,7 @@ spec:
             - name: 'JITSI_ISS'
               value: "{{- .Values.env.jitsiIss -}}"
             - name: 'JITSI_URL'
-              value: "{{- .Values.env.jitsiUrl -}}"
+              value: "meet.{{ .Values.domain }}"
             - name: 'SECRET_JITSI_KEY'
               value: "{{- .Values.env.secretJitsiKey -}}"
             - name: 'API_URL'

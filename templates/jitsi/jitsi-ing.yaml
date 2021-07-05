@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    {{- with .Values.jitsi.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  name: jitsi
+  namespace: {{ .Values.jitsi.namespace }}
+spec:
+  rules:
+  - host: meet.{{ .Values.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: web
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - meet.{{ .Values.domain }}
+    secretName: tls-jitsi
+

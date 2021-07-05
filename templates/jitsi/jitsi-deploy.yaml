@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: jitsi
+  name: jitsi
+  namespace: {{ .Values.jitsi.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: jitsi
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        k8s-app: jitsi
+    spec:
+      containers:
+      - name: web
+        image: {{ .Values.jitsi.web.image }}
+        imagePullPolicy: {{ .Values.jitsi.web.imagePullPolicy }}
+        env:
+        - name: PUBLIC_URL
+          value: https://meet.{{ .Values.domain }}
+        - name: XMPP_SERVER
+          value: localhost
+        {{- with .Values.jitsi.web.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      - name: prosody
+        image: {{ .Values.jitsi.prosody.image }}
+        imagePullPolicy: {{ .Values.jitsi.prosody.imagePullPolicy }}
+        env:
+        - name: PUBLIC_URL
+          value: https://meet.{{ .Values.domain }}
+        - name: JICOFO_COMPONENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: JICOFO_COMPONENT_SECRET
+              name: jitsi-config
+        - name: JVB_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: JVB_AUTH_PASSWORD
+              name: jitsi-config
+        - name: JICOFO_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: JICOFO_AUTH_PASSWORD
+              name: jitsi-config
+        {{- with .Values.jitsi.prosody.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      - name: jicofo
+        image: {{ .Values.jitsi.jicofo.image }}
+        imagePullPolicy: {{ .Values.jitsi.jicofo.imagePullPolicy }}
+        env:
+        - name: XMPP_SERVER
+          value: localhost
+        - name: JICOFO_COMPONENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: JICOFO_COMPONENT_SECRET
+              name: jitsi-config
+        - name: JICOFO_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: JICOFO_AUTH_PASSWORD
+              name: jitsi-config
+        {{- with .Values.jitsi.jicofo.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      - name: jvb
+        image: {{ .Values.jitsi.jvb.image }}
+        imagePullPolicy: {{ .Values.jitsi.jvb.imagePullPolicy }}
+        env:
+        - name: XMPP_SERVER
+          value: localhost
+        - name: DOCKER_HOST_ADDRESS
+          value: localhost
+        - name: JVB_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: JVB_AUTH_PASSWORD
+              name: jitsi-config
+        - name: JICOFO_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: JICOFO_AUTH_PASSWORD
+              name: jitsi-config
+        - name: JVB_BREWERY_MUC
+          value: jvbbrewery
+        - name: TZ
+          value: America/Los_Angeles
+        {{- with .Values.jitsi.jvb.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      serviceAccountName: jitsi
+
